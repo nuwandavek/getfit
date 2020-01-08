@@ -3,6 +3,8 @@ const videoWidth = 600;
 const videoHeight = 450;
 
 const dataStore = [];
+let selectedPartToTrack = 0;
+const parts = [ "nose","leftEye", "rightEye", "leftEar", "rightEar", "leftShoulder", "rightShoulder", "leftElbow", "rightElbow","leftWrist", "rightWrist","leftHip", "rightHip", "leftKnee", "rightKnee", "leftAnkle", "rightAnkle"];
 
 function drawKeypoints(keypoints, minPartConfidence, ctx) {
     keypoints.forEach((pt) => {
@@ -10,7 +12,7 @@ function drawKeypoints(keypoints, minPartConfidence, ctx) {
         if (pt.score >= minPartConfidence) {
             ctx.beginPath();
             ctx.arc(pt.position.x, pt.position.y, 5, 0, 2 * Math.PI);
-            ctx.fillStyle = "red";
+            ctx.fillStyle = "#c0392b";
             ctx.fill();
         }
 
@@ -29,34 +31,64 @@ function drawVideo(video, ctx) {
 }
 
 
-function plotxy() {
+function drawSkeleton(keypoints, minPartConfidence, ctx) {
+    const edges = [
+        { "name": "l-r-shoulder", "points": [5, 6] },
+        { "name": "l-r-hip", "points": [11, 12] },
+        { "name": "l-shoulder-elbow", "points": [5, 7] },
+        { "name": "r-shoulder-elbow", "points": [6, 8] },
+        { "name": "l-shoulder-hip", "points": [5, 11] },
+        { "name": "r-shoulder-hip", "points": [6, 12] },
+        { "name": "l-elbow-wrist", "points": [7, 9] },
+        { "name": "r-elbow-wrist", "points": [8, 10] },
+        { "name": "l-hip-knee", "points": [11, 13] },
+        { "name": "r-hip-knee", "points": [12, 14] },
+        { "name": "l-knee-ankle", "points": [13, 15] },
+        { "name": "r-knee-ankle", "points": [14, 16] }
+    ];
 
-    console.log(dataStore);
-    const svg = d3.select('#plot').attr('width', 250).attr('height', 450);
+    edges.forEach((edge) => {
+        if ((keypoints[edge.points[0]].score >= minPartConfidence) && (keypoints[edge.points[1]].score >= minPartConfidence)) {
+            ctx.beginPath();
+            ctx.moveTo(keypoints[edge.points[0]].position.x, keypoints[edge.points[0]].position.y);
+            ctx.lineTo(keypoints[edge.points[1]].position.x, keypoints[edge.points[1]].position.y);
+            ctx.strokeStyle = "#2980b9";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+    });
+
+}
+
+function plotxy(width, height) {
+
+    
+    // console.log(dataStore);
+    const svg = d3.select('#plot').attr('width', width).attr('height', height);
 
     var xScale = d3.scaleLinear()
-        .domain([0, 10 - 1]) // input
-        .range([50, 250]); // output
+        .domain([0, 9]) // input
+        .range([50, width]); // output
 
 
     var yScale1 = d3.scaleLinear()
         .domain([0, 500]) // input 
-        .range([200, 0]); // output 
+        .range([height/2 -25, 0]); // output 
 
 
     var yScale2 = d3.scaleLinear()
         .domain([0, 500]) // input 
-        .range([400, 200]); // output 
+        .range([height - 50, height/2 -25]); // output 
 
 
     var line1 = d3.line()
         .x(function (d, i) { return xScale(i); }) // set the x values for the line generator
-        .y(function (d) { return yScale1(d.keypoints[0].position.x); }) // set the y values for the line generator 
+        .y(function (d) { return yScale1(d.keypoints[selectedPartToTrack].position.x); }) // set the y values for the line generator 
         .curve(d3.curveMonotoneX) // apply smoothing to the line
 
     var line2 = d3.line()
         .x(function (d, i) { return xScale(i); }) // set the x values for the line generator
-        .y(function (d) { return yScale2(d.keypoints[0].position.y); }) // set the y values for the line generator 
+        .y(function (d) { return yScale2(d.keypoints[selectedPartToTrack].position.y); }) // set the y values for the line generator 
         .curve(d3.curveMonotoneX) // apply smoothing to the line
 
     d3.select('#xplot').remove();
@@ -67,7 +99,7 @@ function plotxy() {
 
     gX.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + 200 + ")")
+        .attr("transform", "translate(0," + (height/2 -25) + ")")
         .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
 
     gX.append("g")
@@ -85,16 +117,16 @@ function plotxy() {
         .enter().append("circle") // Uses the enter().append() method
         .attr("class", "dot") // Assign a class for styling
         .attr("cx", function (d, i) { return xScale(i) })
-        .attr("cy", function (d) { return yScale1(d.keypoints[0].position.x) })
+        .attr("cy", function (d) { return yScale1(d.keypoints[selectedPartToTrack].position.x) })
         .attr("r", 5)
 
-    gX.append('text').attr('x',150).attr('y',20).attr('text-anchor','middle').attr('fill','#fff').text('X of Nose');
-    gY.append('text').attr('x',150).attr('y',270).attr('text-anchor','middle').attr('fill','#fff').text('Y of Nose');
+    gX.append('text').attr('x', 150).attr('y', 20).attr('text-anchor', 'middle').attr('fill', '#fff').text('X of '+parts[selectedPartToTrack]);
+    gY.append('text').attr('x', 150).attr('y', 270).attr('text-anchor', 'middle').attr('fill', '#fff').text('Y of '+parts[selectedPartToTrack]);
 
 
     gY.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + 400 + ")")
+        .attr("transform", "translate(0," + (height-50) + ")")
         .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
 
     gY.append("g")
@@ -112,7 +144,7 @@ function plotxy() {
         .enter().append("circle") // Uses the enter().append() method
         .attr("class", "dot") // Assign a class for styling
         .attr("cx", function (d, i) { return xScale(i) })
-        .attr("cy", function (d) { return yScale2(d.keypoints[0].position.y) })
+        .attr("cy", function (d) { return yScale2(d.keypoints[selectedPartToTrack].position.y) })
         .attr("r", 5)
 
 
@@ -183,7 +215,8 @@ function detectPoseInRealTime(video, net) {
 
                 drawVideo(video, ctx);
                 drawKeypoints(keypoints, minPartConfidence, ctx);
-                plotxy();
+                drawSkeleton(keypoints,minPartConfidence,ctx);
+                plotxy(400,450);
 
             }
         });
@@ -230,6 +263,11 @@ async function bindPage() {
 
 
     detectPoseInRealTime(video, net);
+
+    $('.debug-part-select').click(function(){
+        selectedPartToTrack = $(this).attr('data-key');
+    })
+
 
 
 

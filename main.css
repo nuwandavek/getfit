@@ -39,8 +39,6 @@ body{
 
 #attribution{
     font-size: 10px;
-    position: absolute;
-    bottom: 0;
     color: aliceblue;
 }
 
@@ -78,4 +76,15 @@ body{
 .tick, .axis{
     
     color: #fff;
+}
+
+
+.buttons{
+    margin:10px;
+    padding:10px;
+}
+
+#output,#plot{
+    border: 2px solid #fff;
+    border-radius: 5px;
 }
