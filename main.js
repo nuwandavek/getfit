@@ -3,8 +3,13 @@ const videoWidth = 600;
 const videoHeight = 450;
 
 const dataStore = [];
+
 let selectedPartToTrack = 0;
 const parts = [ "nose","leftEye", "rightEye", "leftEar", "rightEar", "leftShoulder", "rightShoulder", "leftElbow", "rightElbow","leftWrist", "rightWrist","leftHip", "rightHip", "leftKnee", "rightKnee", "leftAnkle", "rightAnkle"];
+
+const movement = [];
+const movement_kf = [];
+var kf = new KalmanFilter();
 
 function drawKeypoints(keypoints, minPartConfidence, ctx) {
     keypoints.forEach((pt) => {
@@ -199,6 +204,15 @@ function detectPoseInRealTime(video, net) {
         });
         poses = poses.concat(pose);
 
+        if (movement.length < 20) {
+            movement.push(pose[0].keypoints[selectedPartToTrack].position.y);
+            movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
+        }
+        else {
+            movement.shift();
+            movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
+        }
+
         if (dataStore.length < 10) {
             dataStore.push(pose[0]);
         }
@@ -277,3 +291,10 @@ async function bindPage() {
 
 
 bindPage();
+
+// i=0
+// data_out = []
+// for (j=0; j < 17; j++) {
+//   data_out.push([dataStore[i].keypoints[j].position.x, dataStore[i].keypoints[j].position.y, dataStore[i].keypoints[j].score]);
+// }
+// for(i=0;i<data_out.length; i++){console.log("[ ", data_out[i][0],", ", data_out[i][1], ", ", data_out[i][2], " ],");}
