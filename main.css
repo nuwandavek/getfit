@@ -88,3 +88,19 @@ body{
     border: 2px solid #fff;
     border-radius: 5px;
 }
+
+
+
+.output-button{
+    width: 600px;
+    height: 450px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #fff;
+    border-radius: 5px;
+}
+
+#part-buttons{
+    text-align: center;
+}

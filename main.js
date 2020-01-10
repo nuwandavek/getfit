@@ -3,9 +3,12 @@ const videoWidth = 600;
 const videoHeight = 450;
 
 const dataStore = [];
+let videoStatus = false;
+let modelEvalStatus = false;
 
 let selectedPartToTrack = 0;
-const parts = [ "nose","leftEye", "rightEye", "leftEar", "rightEar", "leftShoulder", "rightShoulder", "leftElbow", "rightElbow","leftWrist", "rightWrist","leftHip", "rightHip", "leftKnee", "rightKnee", "leftAnkle", "rightAnkle"];
+const framesEvalsToTrack = 20;
+const parts = ["nose", "leftEye", "rightEye", "leftEar", "rightEar", "leftShoulder", "rightShoulder", "leftElbow", "rightElbow", "leftWrist", "rightWrist", "leftHip", "rightHip", "leftKnee", "rightKnee", "leftAnkle", "rightAnkle"];
 
 const movement = [];
 const movement_kf = [];
@@ -67,23 +70,23 @@ function drawSkeleton(keypoints, minPartConfidence, ctx) {
 
 function plotxy(width, height) {
 
-    
+
     // console.log(dataStore);
     const svg = d3.select('#plot').attr('width', width).attr('height', height);
 
     var xScale = d3.scaleLinear()
-        .domain([0, 9]) // input
+        .domain([0, framesEvalsToTrack - 1]) // input
         .range([50, width]); // output
 
 
     var yScale1 = d3.scaleLinear()
         .domain([0, 500]) // input 
-        .range([height/2 -25, 0]); // output 
+        .range([height / 2 - 25, 0]); // output 
 
 
     var yScale2 = d3.scaleLinear()
         .domain([0, 500]) // input 
-        .range([height - 50, height/2 -25]); // output 
+        .range([height - 50, height / 2 - 25]); // output 
 
 
     var line1 = d3.line()
@@ -104,7 +107,7 @@ function plotxy(width, height) {
 
     gX.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + (height/2 -25) + ")")
+        .attr("transform", "translate(0," + (height / 2 - 25) + ")")
         .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
 
     gX.append("g")
@@ -125,13 +128,13 @@ function plotxy(width, height) {
         .attr("cy", function (d) { return yScale1(d.keypoints[selectedPartToTrack].position.x) })
         .attr("r", 5)
 
-    gX.append('text').attr('x', 150).attr('y', 20).attr('text-anchor', 'middle').attr('fill', '#fff').text('X of '+parts[selectedPartToTrack]);
-    gY.append('text').attr('x', 150).attr('y', 270).attr('text-anchor', 'middle').attr('fill', '#fff').text('Y of '+parts[selectedPartToTrack]);
+    gX.append('text').attr('x', 150).attr('y', 20).attr('text-anchor', 'middle').attr('fill', '#fff').text('X of ' + parts[selectedPartToTrack]);
+    gY.append('text').attr('x', 150).attr('y', 270).attr('text-anchor', 'middle').attr('fill', '#fff').text('Y of ' + parts[selectedPartToTrack]);
 
 
     gY.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + (height-50) + ")")
+        .attr("transform", "translate(0," + (height - 50) + ")")
         .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
 
     gY.append("g")
@@ -213,7 +216,7 @@ function detectPoseInRealTime(video, net) {
             movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
         }
 
-        if (dataStore.length < 10) {
+        if (dataStore.length < framesEvalsToTrack) {
             dataStore.push(pose[0]);
         }
         else {
@@ -229,8 +232,8 @@ function detectPoseInRealTime(video, net) {
 
                 drawVideo(video, ctx);
                 drawKeypoints(keypoints, minPartConfidence, ctx);
-                drawSkeleton(keypoints,minPartConfidence,ctx);
-                plotxy(400,450);
+                drawSkeleton(keypoints, minPartConfidence, ctx);
+                plotxy(400, 450);
 
             }
         });
@@ -261,36 +264,52 @@ async function bindPage() {
     video = await loadVideo();
 
 
+    const canvas = document.getElementById('output');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
+    const drawInterval = setInterval(function () {
+        drawVideo(video, ctx);
+    }, 50);
 
 
-    console.log("Downloading the Model")
+    $('#start-eval').toggleClass('disabled');
+
+    $('#start-eval').click(async function() {
+        $('#eval-button-container').hide();
+        $('#part-buttons').show();
+        $('#plot').show();
+        console.log("Downloading the Model")
 
 
-    const net = await posenet.load({
-        architecture: 'ResNet50',
-        outputStride: 32,
-        inputResolution: { width: 257, height: 200 },
-        quantBytes: 2
-    });
+        const net = await posenet.load({
+            architecture: 'ResNet50',
+            outputStride: 32,
+            inputResolution: { width: 257, height: 200 },
+            quantBytes: 2
+        });
 
-    console.log("Model Downloaded.")
+        console.log("Model Downloaded.")
 
+        clearInterval(drawInterval);
+        detectPoseInRealTime(video, net);
 
-    detectPoseInRealTime(video, net);
-
-    $('.debug-part-select').click(function(){
-        selectedPartToTrack = $(this).attr('data-key');
+        $('.debug-part-select').click(function () {
+            selectedPartToTrack = $(this).attr('data-key');
+        })
     })
-
-
-
 
 
 
 }
 
+$('#start-video').click(function () {
+    $('#video-button-container').hide();
+    $('#output').show();
+    bindPage();
+})
 
-bindPage();
 
 // i=0
 // data_out = []

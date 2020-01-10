@@ -25,35 +25,52 @@
     <div id="main-div">
         <a href='/' class='jumbo'><span style="color:#fff">get</span><span style="color:#c0392b">fit</span></a>
         
-    <video autoplay="true" id="videoElement"></video>
+    <video id="videoElement"></video>
     <div class='side-by-side'>
-            <canvas id='output' width = 600 height = 450></canvas>   
-            <svg id='plot' width=400 height=450></svg>
-    </div>
-    <div class="ui buttons">
-            <button class="ui button active debug-part-select" data-key=0>Nose</button>
-            <button class="ui button debug-part-select" data-key=1>l-Eye</button>
-            <button class="ui button debug-part-select" data-key=2>r-Eye</button>
-            <button class="ui button debug-part-select" data-key=3>l-Ear</button>
-            <button class="ui button debug-part-select" data-key=4>r-Ear</button>
-            <button class="ui button debug-part-select" data-key=5>l-Shoulder</button>
-            <button class="ui button debug-part-select" data-key=6>r-Shoulder</button>
-            <button class="ui button debug-part-select" data-key=7>l-Elbow</button>
-            <button class="ui button debug-part-select" data-key=8>r-Elbow</button>
-    </div>
-    <div class="ui buttons">
+            <div>
+                    <div class='output-button' id='video-button-container'>
+                            <button class="ui button" id='start-video'>Start Video</button>
+                    </div>
+                    <canvas id='output' style='display:none' width = 600 height = 450></canvas>
+
+            </div>   
+            <div>
+                    <div class='output-button' id='eval-button-container'>
+                            <button class="ui button disabled" id='start-eval'>Start Eval</button>
+                    </div>
+                    <svg id='plot' width=400 height=450 style='display:none' ></svg>
+
+            </div>   
             
-            <button class="ui button debug-part-select" data-key=9>l-Wrist</button>
-            <button class="ui button debug-part-select" data-key=10>r-Wrist</button>
-            <button class="ui button debug-part-select" data-key=11>l-Hip</button>
-            <button class="ui button debug-part-select" data-key=12>r-Hip</button>
-            <button class="ui button debug-part-select" data-key=13>l-Knee</button>
-            <button class="ui button debug-part-select" data-key=14>r-Knee</button>
-            <button class="ui button debug-part-select" data-key=15>l-Ankle</button>
-            <button class="ui button debug-part-select" data-key=16>r-Ankle</button>
+
     </div>
+    <div id='part-buttons' style='display: none'>
+            <div class="ui buttons">
+                    <button class="ui button active debug-part-select" data-key=0>Nose</button>
+                    <button class="ui button debug-part-select" data-key=1>l-Eye</button>
+                    <button class="ui button debug-part-select" data-key=2>r-Eye</button>
+                    <button class="ui button debug-part-select" data-key=3>l-Ear</button>
+                    <button class="ui button debug-part-select" data-key=4>r-Ear</button>
+                    <button class="ui button debug-part-select" data-key=5>l-Shoulder</button>
+                    <button class="ui button debug-part-select" data-key=6>r-Shoulder</button>
+                    <button class="ui button debug-part-select" data-key=7>l-Elbow</button>
+                    <button class="ui button debug-part-select" data-key=8>r-Elbow</button>
+            </div>
+            <div class="ui buttons">
+                    
+                    <button class="ui button debug-part-select" data-key=9>l-Wrist</button>
+                    <button class="ui button debug-part-select" data-key=10>r-Wrist</button>
+                    <button class="ui button debug-part-select" data-key=11>l-Hip</button>
+                    <button class="ui button debug-part-select" data-key=12>r-Hip</button>
+                    <button class="ui button debug-part-select" data-key=13>l-Knee</button>
+                    <button class="ui button debug-part-select" data-key=14>r-Knee</button>
+                    <button class="ui button debug-part-select" data-key=15>l-Ankle</button>
+                    <button class="ui button debug-part-select" data-key=16>r-Ankle</button>
+            </div>
+    </div>
+    
     <script src="./main.js"></script>
-    <div id='attribution'>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+    <!-- <div id='attribution'>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> -->
     </div>
 
 </body>
