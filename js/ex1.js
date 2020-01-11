@@ -1,10 +1,19 @@
-import {setupCamera, loadVideo, detectPoseInRealTime} from './utils.js'
+import {setupCamera, loadVideo, detectPoseInRealTime, calibrate} from './utils.js'
 
 import {drawKeypoints, drawSkeleton, plotxy, drawVideo, drawEverything} from './draw.js'
 
 import {videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, movement, movement_kf} from './config.js'
 
+var doCalibrate = false;
 
+
+
+function ex1(video, ctx, keypoints, minPartConfidence, width, height){
+    drawVideo(video, ctx);
+    drawKeypoints(keypoints, minPartConfidence, ctx);
+    drawSkeleton(keypoints, minPartConfidence, ctx);
+    calibrate(doCalibrate, keypoints, minPartConfidence);
+}
 
 
 
@@ -28,9 +37,8 @@ async function bindPage() {
     $('#start-eval').toggleClass('disabled');
 
     $('#start-eval').click(async function() {
-        $('#eval-button-container').hide();
-        $('#part-buttons').show();
-        $('#plot').show();
+        $('#start-eval').hide();
+        
         console.log("Downloading the Model")
 
 
@@ -43,8 +51,17 @@ async function bindPage() {
 
         console.log("Model Downloaded.")
 
+        $('#calibrate').toggleClass('disabled');
+        $('#calibrate').click(function(){
+            doCalibrate = true;
+            $('#eval-button-container').hide();
+            $('#part-buttons').show();
+        });
+
+
+
         clearInterval(drawInterval);
-        detectPoseInRealTime(video, net, drawEverything);
+        detectPoseInRealTime(video, net, ex1);
 
         $('.debug-part-select').click(function () {
             selectedPartToTrack = $(this).attr('data-key');

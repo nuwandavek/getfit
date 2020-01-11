@@ -2,6 +2,22 @@ import {videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack,
 import {drawKeypoints, drawSkeleton, plotxy, drawVideo} from './draw.js'
 
 
+export function calibrate(doCalibrate, keypoints, minPartConfidence){
+    console.log('Do calibrate : ',doCalibrate);
+    if (doCalibrate){
+        keypoints.forEach((pt,i) => {
+            if (pt.score >= minPartConfidence) {
+                $('.x[data-key="'+i+'"]').hide();
+                $('.check[data-key="'+i+'"]').show();
+            }
+            else{
+                $('.x[data-key="'+i+'"]').show();
+                $('.check[data-key="'+i+'"]').hide();
+            }
+        });
+
+    }
+}
 
 
 

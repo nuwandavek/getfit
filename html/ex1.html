@@ -37,36 +37,38 @@
             <div>
                     <div class='output-button' id='eval-button-container'>
                             <button class="ui button disabled" id='start-eval'>Start Eval</button>
+                            <button class="ui button disabled" id='calibrate'>Calibrate</button>
                     </div>
-                    <svg id='plot' width=400 height=450 style='display:none' ></svg>
+
+                    <div id='part-buttons' style='display: none; flex-direction: row'>
+                        <div class="ui vertical buttons">
+                                <button class="ui label" data-key=0>Nose <i class="check icon" style='display:none; color: #27ae60' data-key=0></i> <i class="x icon" style='color: #c0392b' data-key=0></i></button>
+                                <button class="ui label" data-key=1>l-Eye<i class="check icon" style='display:none; color: #27ae60' data-key=1></i> <i class="x icon" style='color: #c0392b' data-key=1></i></button>
+                                <button class="ui label" data-key=2>r-Eye<i class="check icon" style='display:none; color: #27ae60' data-key=2></i> <i class="x icon" style='color: #c0392b' data-key=2></i></button>
+                                <button class="ui label" data-key=3>l-Ear<i class="check icon" style='display:none; color: #27ae60' data-key=3></i> <i class="x icon" style='color: #c0392b' data-key=3></i></button>
+                                <button class="ui label" data-key=4>r-Ear<i class="check icon" style='display:none; color: #27ae60' data-key=4></i> <i class="x icon" style='color: #c0392b' data-key=4></i></button>
+                                <button class="ui label" data-key=5>l-Shoulder<i class="check icon" style='display:none; color: #27ae60' data-key=5></i> <i class="x icon" style='color: #c0392b' data-key=5></i></button>
+                                <button class="ui label" data-key=6>r-Shoulder<i class="check icon" style='display:none; color: #27ae60' data-key=6></i> <i class="x icon" style='color: #c0392b' data-key=6></i></button>
+                                <button class="ui label" data-key=7>l-Elbow<i class="check icon" style='display:none; color: #27ae60' data-key=7></i> <i class="x icon" style='color: #c0392b' data-key=7></i></button>
+                                <button class="ui label" data-key=8>r-Elbow<i class="check icon" style='display:none; color: #27ae60' data-key=8></i> <i class="x icon" style='color: #c0392b' data-key=8></i></button>
+                        </div>
+                        <div class="ui vertical buttons">
+                                
+                                <button class="ui label" data-key=9>l-Wrist<i class="check icon" style='display:none; color: #27ae60' data-key=9></i> <i class="x icon" style='color: #c0392b' data-key=9></i></button>
+                                <button class="ui label" data-key=10>r-Wrist<i class="check icon" style='display:none; color: #27ae60' data-key=10></i> <i class="x icon" style='color: #c0392b' data-key=10></i></button>
+                                <button class="ui label" data-key=11>l-Hip<i class="check icon" style='display:none; color: #27ae60' data-key=11></i> <i class="x icon" style='color: #c0392b' data-key=11></i></button>
+                                <button class="ui label" data-key=12>r-Hip<i class="check icon" style='display:none; color: #27ae60' data-key=12></i> <i class="x icon" style='color: #c0392b' data-key=12></i></button>
+                                <button class="ui label" data-key=13>l-Knee<i class="check icon" style='display:none; color: #27ae60' data-key=13></i> <i class="x icon" style='color: #c0392b' data-key=13></i></button>
+                                <button class="ui label" data-key=14>r-Knee<i class="check icon" style='display:none; color: #27ae60' data-key=14></i> <i class="x icon" style='color: #c0392b' data-key=14></i></button>
+                                <button class="ui label" data-key=15>l-Ankle<i class="check icon" style='display:none; color: #27ae60' data-key=15></i> <i class="x icon" style='color: #c0392b' data-key=15></i></button>
+                                <button class="ui label" data-key=16>r-Ankle<i class="check icon" style='display:none; color: #27ae60' data-key=16></i> <i class="x icon" style='color: #c0392b' data-key=16></i></button>
+                        </div>
+                </div>
+                
 
             </div>   
             
 
-    </div>
-    <div id='part-buttons' style='display: none'>
-            <div class="ui buttons">
-                    <button class="ui button active debug-part-select" data-key=0>Nose</button>
-                    <button class="ui button debug-part-select" data-key=1>l-Eye</button>
-                    <button class="ui button debug-part-select" data-key=2>r-Eye</button>
-                    <button class="ui button debug-part-select" data-key=3>l-Ear</button>
-                    <button class="ui button debug-part-select" data-key=4>r-Ear</button>
-                    <button class="ui button debug-part-select" data-key=5>l-Shoulder</button>
-                    <button class="ui button debug-part-select" data-key=6>r-Shoulder</button>
-                    <button class="ui button debug-part-select" data-key=7>l-Elbow</button>
-                    <button class="ui button debug-part-select" data-key=8>r-Elbow</button>
-            </div>
-            <div class="ui buttons">
-                    
-                    <button class="ui button debug-part-select" data-key=9>l-Wrist</button>
-                    <button class="ui button debug-part-select" data-key=10>r-Wrist</button>
-                    <button class="ui button debug-part-select" data-key=11>l-Hip</button>
-                    <button class="ui button debug-part-select" data-key=12>r-Hip</button>
-                    <button class="ui button debug-part-select" data-key=13>l-Knee</button>
-                    <button class="ui button debug-part-select" data-key=14>r-Knee</button>
-                    <button class="ui button debug-part-select" data-key=15>l-Ankle</button>
-                    <button class="ui button debug-part-select" data-key=16>r-Ankle</button>
-            </div>
     </div>
     
     <script src="/js/ex1.js" type="module" ></script>
