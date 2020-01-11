@@ -1,20 +1,8 @@
+import {videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, movement, movement_kf} from './config.js'
 
-const videoWidth = 600;
-const videoHeight = 450;
 
-const dataStore = [];
-let videoStatus = false;
-let modelEvalStatus = false;
 
-let selectedPartToTrack = 0;
-const framesEvalsToTrack = 20;
-const parts = ["nose", "leftEye", "rightEye", "leftEar", "rightEar", "leftShoulder", "rightShoulder", "leftElbow", "rightElbow", "leftWrist", "rightWrist", "leftHip", "rightHip", "leftKnee", "rightKnee", "leftAnkle", "rightAnkle"];
-
-const movement = [];
-const movement_kf = [];
-var kf = new KalmanFilter();
-
-function drawKeypoints(keypoints, minPartConfidence, ctx) {
+export function drawKeypoints(keypoints, minPartConfidence, ctx) {
     keypoints.forEach((pt) => {
         // console.log(pt);
         if (pt.score >= minPartConfidence) {
@@ -28,7 +16,7 @@ function drawKeypoints(keypoints, minPartConfidence, ctx) {
     });
 }
 
-function drawVideo(video, ctx) {
+export function drawVideo(video, ctx) {
     ctx.clearRect(0, 0, videoWidth, videoHeight);
     ctx.save();
     ctx.scale(-1, 1);
@@ -39,7 +27,7 @@ function drawVideo(video, ctx) {
 }
 
 
-function drawSkeleton(keypoints, minPartConfidence, ctx) {
+export function drawSkeleton(keypoints, minPartConfidence, ctx) {
     const edges = [
         { "name": "l-r-shoulder", "points": [5, 6] },
         { "name": "l-r-hip", "points": [11, 12] },
@@ -68,7 +56,7 @@ function drawSkeleton(keypoints, minPartConfidence, ctx) {
 
 }
 
-function plotxy(width, height) {
+export function plotxy(width, height) {
 
 
     // console.log(dataStore);
@@ -159,161 +147,10 @@ function plotxy(width, height) {
 
 }
 
-async function setupCamera() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error(
-            'Browser API navigator.mediaDevices.getUserMedia not available');
-    }
 
-    var video = document.querySelector("#videoElement");
-    video.width = videoWidth;
-    video.height = videoHeight;
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-        'video': true
-    });
-    video.srcObject = stream;
-
-    return new Promise((resolve) => {
-        video.onloadedmetadata = () => {
-            resolve(video);
-        };
-    });
+export function drawEverything(video, ctx, keypoints, minPartConfidence, width, height){
+    drawVideo(video, ctx);
+    drawKeypoints(keypoints, minPartConfidence, ctx);
+    drawSkeleton(keypoints, minPartConfidence, ctx);
+    plotxy(width, height);
 }
-
-async function loadVideo() {
-    const video = await setupCamera();
-    video.play();
-
-    return video;
-}
-
-function detectPoseInRealTime(video, net) {
-    const minPoseConfidence = 0.1;
-    const minPartConfidence = 0.5;
-
-
-    const canvas = document.getElementById('output');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = videoWidth;
-    canvas.height = videoHeight;
-
-    async function poseDetectionFrame() {
-        let poses = [];
-        const pose = await net.estimatePoses(video, {
-            flipHorizontal: true,
-            decodingMethod: 'single-person'
-        });
-        poses = poses.concat(pose);
-
-        if (movement.length < 20) {
-            movement.push(pose[0].keypoints[selectedPartToTrack].position.y);
-            movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
-        }
-        else {
-            movement.shift();
-            movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
-        }
-
-        if (dataStore.length < framesEvalsToTrack) {
-            dataStore.push(pose[0]);
-        }
-        else {
-            dataStore.shift();
-            dataStore.push(pose[0]);
-        }
-
-
-
-
-        poses.forEach(({ score, keypoints }) => {
-            if (score >= minPoseConfidence) {
-
-                drawVideo(video, ctx);
-                drawKeypoints(keypoints, minPartConfidence, ctx);
-                drawSkeleton(keypoints, minPartConfidence, ctx);
-                plotxy(400, 450);
-
-            }
-        });
-
-        // End monitoring code for frames per second
-
-        requestAnimationFrame(poseDetectionFrame);
-    }
-
-    poseDetectionFrame();
-}
-
-
-async function bindPage() {
-
-    // var video = document.querySelector("#videoElement");
-
-    // if (navigator.mediaDevices.getUserMedia) {
-    //     navigator.mediaDevices.getUserMedia({ video: true })
-    //         .then(function (stream) {
-    //             video.srcObject = stream;
-    //         })
-    //         .catch(function (error) {
-    //             console.log("Something went wrong!");
-    //         });
-    // }
-    let video;
-    video = await loadVideo();
-
-
-    const canvas = document.getElementById('output');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = videoWidth;
-    canvas.height = videoHeight;
-    const drawInterval = setInterval(function () {
-        drawVideo(video, ctx);
-    }, 50);
-
-
-    $('#start-eval').toggleClass('disabled');
-
-    $('#start-eval').click(async function() {
-        $('#eval-button-container').hide();
-        $('#part-buttons').show();
-        $('#plot').show();
-        console.log("Downloading the Model")
-
-
-        const net = await posenet.load({
-            architecture: 'ResNet50',
-            outputStride: 32,
-            inputResolution: { width: 257, height: 200 },
-            quantBytes: 2
-        });
-
-        console.log("Model Downloaded.")
-
-        clearInterval(drawInterval);
-        detectPoseInRealTime(video, net);
-
-        $('.debug-part-select').click(function () {
-            selectedPartToTrack = $(this).attr('data-key');
-        })
-    })
-
-
-
-}
-
-$('#start-video').click(function () {
-    $('#video-button-container').hide();
-    $('#output').show();
-    bindPage();
-})
-
-
-// i=0
-// data_out = []
-// for (j=0; j < 17; j++) {
-//   data_out.push([dataStore[i].keypoints[j].position.x, dataStore[i].keypoints[j].position.y, dataStore[i].keypoints[j].score]);
-// }
-// for(i=0;i<data_out.length; i++){console.log("[ ", data_out[i][0],", ", data_out[i][1], ", ", data_out[i][2], " ],");}
