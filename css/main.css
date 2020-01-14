@@ -104,3 +104,9 @@ body{
 #part-buttons{
     text-align: center;
 }
+#timer{
+    font-size: 60px;
+    margin: 20px;
+    color: #fff;
+    display: none;
+}

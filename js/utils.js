@@ -1,20 +1,65 @@
-import {videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, movement, movement_kf} from './config.js'
-import {drawKeypoints, drawSkeleton, plotxy, drawVideo} from './draw.js'
+import { videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, movement, movement_kf, calibrationDone, doCalibrate, modifyCalibrationDone, timerClock, modifyTimerClock } from './config.js'
+import { drawKeypoints, drawSkeleton, plotxy, drawVideo } from './draw.js'
 
 
-export function calibrate(doCalibrate, keypoints, minPartConfidence){
-    console.log('Do calibrate : ',doCalibrate);
-    if (doCalibrate){
-        keypoints.forEach((pt,i) => {
-            if (pt.score >= minPartConfidence) {
-                $('.x[data-key="'+i+'"]').hide();
-                $('.check[data-key="'+i+'"]').show();
+export function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+  }
+
+export function timer(){
+    setInterval(() => {
+        if (calibrationDone){
+            timerClock.s++;
+            if (timerClock.s>=60){
+                timerClock.s=0;
+                timerClock.m++;
+                if (timerClock.m>=60){
+                    timerClock.s=0;
+                    timerClock.m=0;
+                    timerClock.h++;
+                }
+
             }
-            else{
-                $('.x[data-key="'+i+'"]').show();
-                $('.check[data-key="'+i+'"]').hide();
+            modifyTimerClock(timerClock.h,timerClock.m,timerClock.s);
+        }
+        console.log(timerClock);
+    }, 1000);
+}
+
+
+export function calibrate(keypoints, minPartConfidence, calibrationPosition) {
+    // console.log('Do calibrate : ', doCalibrate, "Calibration Done", calibrationDone);
+
+    if (doCalibrate) {
+        let calibrationState = calibrationPosition.map(()=>(0));
+        calibrationPosition.forEach((index) => {
+            $('.label[data-key="' + index + '"]').show();
+            $('.x[data-key="' + index + '"]').show();
+        })
+        keypoints.forEach((pt, i) => {
+            if (calibrationPosition.indexOf(i)>=0){
+                if (pt.score >= minPartConfidence) {
+                    calibrationState[i] = 1;
+                    $('.x[data-key="' + i + '"]').hide();
+                    $('.check[data-key="' + i + '"]').show();
+                }
+                else {
+                    calibrationState[i] = 0;
+                    $('.x[data-key="' + i + '"]').show();
+                    $('.check[data-key="' + i + '"]').hide();
+                }
             }
+            
         });
+        // console.log(calibrationState.reduce((b,c)=>(b+c),0), calibrationPosition.length);
+        if (calibrationState.reduce((b,c)=>(b+c),0)==calibrationPosition.length){
+            modifyCalibrationDone(true);
+        }
+        else{
+            modifyCalibrationDone(false);
+        }
 
     }
 }
