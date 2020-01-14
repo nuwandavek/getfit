@@ -12,7 +12,7 @@ function ex1(video, ctx, keypoints, minPartConfidence, width, height){
     drawKeypoints(keypoints, minPartConfidence, ctx);
     drawSkeleton(keypoints, minPartConfidence, ctx);
 
-    let calibrationPosition = [0,1,2,3,4];
+    let calibrationPosition = [0,1,2,3,4,5,6];
 
 
     calibrate(keypoints, minPartConfidence, calibrationPosition);

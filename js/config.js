@@ -32,3 +32,6 @@ export function modifyTimerClock(h,m,s){
     $('#min').html(pad(m,2));
     $('#sec').html(pad(s,2)); 
 }
+
+export const calibrationMarginA = 0.1;
+export const calibrationMarginB = 0.4;

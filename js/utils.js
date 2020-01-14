@@ -1,4 +1,6 @@
-import { videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, movement, movement_kf, calibrationDone, doCalibrate, modifyCalibrationDone, timerClock, modifyTimerClock } from './config.js'
+import { videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, 
+    movement, movement_kf, calibrationDone, doCalibrate, modifyCalibrationDone, timerClock, 
+    modifyTimerClock, calibrationMarginA, calibrationMarginB } from './config.js'
 import { drawKeypoints, drawSkeleton, plotxy, drawVideo } from './draw.js'
 
 
@@ -7,6 +9,62 @@ export function pad(n, width, z) {
     n = n + '';
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
+
+
+export function feedbackDuringCalibration(target, currentState){
+    console.log('Feedback blah blah');
+    const minY = Math.min(...currentState.map((d)=>(d.y)));
+    const maxY = Math.max(...currentState.map((d)=>(d.y)));
+    const minX = Math.min(...currentState.map((d)=>(d.x)));
+    const maxX = Math.max(...currentState.map((d)=>(d.x)));
+    
+    
+    const heightMarginTopMin = calibrationMarginA*videoHeight;
+    const heightMarginTopMax = calibrationMarginB*videoHeight;
+
+    const heightMarginBottomMin = videoHeight - heightMarginTopMax;
+    const heightMarginBottomMax = videoHeight - heightMarginTopMin;
+
+    const widthMarginLeftMin = calibrationMarginA*videoWidth;
+    const widthMarginLeftMax = calibrationMarginB*videoWidth;
+
+    const widthMarginRightMin = videoWidth - widthMarginLeftMax;
+    const widthMarginRightMax = videoWidth - widthMarginLeftMin;
+
+    // console.log(minY,maxY,minX,maxX);
+    // console.log(heightMarginTopMin, heightMarginTopMax, heightMarginBottomMin, heightMarginBottomMax);
+    // console.log(widthMarginLeftMin, widthMarginLeftMax, widthMarginRightMin, widthMarginRightMax);
+
+    if (currentState.reduce((b,c)=>(b+c.confidence),0)==target.length){
+        if (minY>=heightMarginTopMin && maxY<=heightMarginBottomMax){
+                if (minX>=widthMarginLeftMin){
+                    if (maxX<=widthMarginRightMax){
+                        $("#feedback-calibration").html("Perfect!");
+                        modifyCalibrationDone(true);
+                    }
+                    else{
+                        $("#feedback-calibration").html("Please step slightly to the left");
+                        modifyCalibrationDone(false);
+                    }
+                }
+                else{
+                    $("#feedback-calibration").html("Please step slightly to the Right");
+                    modifyCalibrationDone(false);
+                }
+            }
+            else{
+                $("#feedback-calibration").html("Please step slightly further Away");
+                modifyCalibrationDone(false);
+            }
+        }
+    else{
+        $("#feedback-calibration").html("Please make sure that all the keypoints are ticked");
+        modifyCalibrationDone(false);
+    }
+    
+}
+
+
 
 export function timer(){
     setInterval(() => {
@@ -33,7 +91,7 @@ export function calibrate(keypoints, minPartConfidence, calibrationPosition) {
     // console.log('Do calibrate : ', doCalibrate, "Calibration Done", calibrationDone);
 
     if (doCalibrate) {
-        let calibrationState = calibrationPosition.map(()=>(0));
+        let calibrationState = calibrationPosition.map(()=>({x:0,y:0,confidence:0}));
         calibrationPosition.forEach((index) => {
             $('.label[data-key="' + index + '"]').show();
             $('.x[data-key="' + index + '"]').show();
@@ -41,25 +99,26 @@ export function calibrate(keypoints, minPartConfidence, calibrationPosition) {
         keypoints.forEach((pt, i) => {
             if (calibrationPosition.indexOf(i)>=0){
                 if (pt.score >= minPartConfidence) {
-                    calibrationState[i] = 1;
+                    calibrationState[i].confidence = 1;
+                    calibrationState[i].x = pt.position.x;
+                    calibrationState[i].y = pt.position.y;
                     $('.x[data-key="' + i + '"]').hide();
                     $('.check[data-key="' + i + '"]').show();
                 }
                 else {
-                    calibrationState[i] = 0;
+                    
+                    calibrationState[i].confidence = 0;
+                    calibrationState[i].x = pt.position.x;
+                    calibrationState[i].y = pt.position.y;
                     $('.x[data-key="' + i + '"]').show();
                     $('.check[data-key="' + i + '"]').hide();
                 }
             }
             
         });
-        // console.log(calibrationState.reduce((b,c)=>(b+c),0), calibrationPosition.length);
-        if (calibrationState.reduce((b,c)=>(b+c),0)==calibrationPosition.length){
-            modifyCalibrationDone(true);
-        }
-        else{
-            modifyCalibrationDone(false);
-        }
+        
+        
+        feedbackDuringCalibration(calibrationPosition, calibrationState);
 
     }
 }
