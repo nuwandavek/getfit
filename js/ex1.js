@@ -3,20 +3,27 @@ import {setupCamera, loadVideo, detectPoseInRealTime, calibrate, timer, saveLogT
 import {drawKeypoints, drawSkeleton, plotxy, drawVideo, drawEverything} from './draw.js'
 
 import {videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, movement, 
-    movement_kf, calibrationDone, timerClock, modifyDoCalibrate, modifyDoEval} from './config.js'
+    movement_kf, calibrationDone, timerClock, modifyDoCalibrate, modifyDoEval, doEval} from './config.js'
 
 
 
 
 function ex1(video, ctx, keypoints, minPartConfidence, width, height){
-    drawVideo(video, ctx);
-    drawKeypoints(keypoints, minPartConfidence, ctx);
-    drawSkeleton(keypoints, minPartConfidence, ctx);
+    if(doEval){
+        drawVideo(video, ctx);
+        drawKeypoints(keypoints, minPartConfidence, ctx);
+        drawSkeleton(keypoints, minPartConfidence, ctx);
+    
+        let calibrationPosition = [0,1,2,3,4,5,6];
+    
+    
+        calibrate(keypoints, minPartConfidence, calibrationPosition);
+    }
+    else{
+        drawVideo(video, ctx);
+    }
+    
 
-    let calibrationPosition = [0,1,2,3,4,5,6];
-
-
-    calibrate(keypoints, minPartConfidence, calibrationPosition);
 }
 
 
@@ -60,8 +67,9 @@ async function bindPage() {
             modifyDoCalibrate(true);
             // $('#eval-button-container').hide();
             $('#calibrate').hide();
-            $('#part-buttons').show();
-            $('#timer').show();
+            // $('#part-buttons').show();
+            // $('#timer').show();
+            $('#post-calibrate').show();
             timer();
             $('#pause').toggleClass('disabled');
             $('#save').toggleClass('disabled');

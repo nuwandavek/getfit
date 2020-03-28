@@ -3,6 +3,8 @@ import {pad} from './utils.js'
 
 export const videoWidth = 600;
 export const videoHeight = 450;
+export var animationFrame = 0;
+export function modifyAnimationFrame( value ) { animationFrame = value; }
 
 
 export let selectedPartToTrack = 0;

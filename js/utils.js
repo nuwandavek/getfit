@@ -1,6 +1,7 @@
 import { videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, 
     movement, movement_kf, calibrationDone, doCalibrate, modifyCalibrationDone, timerClock, 
-    modifyTimerClock, calibrationMarginA, calibrationMarginB, doEval } from './config.js'
+    modifyTimerClock, calibrationMarginA, calibrationMarginB, doEval, animationFrame,
+    modifyAnimationFrame } from './config.js'
 import { drawKeypoints, drawSkeleton, plotxy, drawVideo } from './draw.js'
 
 
@@ -206,53 +207,60 @@ export function detectPoseInRealTime(video, net, func) {
 
 
     async function poseDetectionFrame() {
-        let poses = [];
-        const pose = await net.estimatePoses(video, {
-            flipHorizontal: true,
-            decodingMethod: 'single-person'
-        });
-        poses = poses.concat(pose);
+        if(doEval){
+            let poses = [];
+            const pose = await net.estimatePoses(video, {
+                flipHorizontal: true,
+                decodingMethod: 'single-person'
+            });
+            poses = poses.concat(pose);
 
-        poses[0]['timestamp'] = new Date().getTime();
+            poses[0]['timestamp'] = new Date().getTime();
 
-        if (movement.length < framesEvalsToTrack) {
-            movement.push(pose[0].keypoints[selectedPartToTrack].position.y);
-            movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
-        }
-        else {
-            movement.shift();
-            movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
-        }
+            if (movement.length < framesEvalsToTrack) {
+                movement.push(pose[0].keypoints[selectedPartToTrack].position.y);
+                movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
+            }
+            else {
+                movement.shift();
+                movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
+            }
 
-        if (dataStore.length < framesEvalsToTrack) {
-            dataStore.push(pose[0]);
-        }
-        else {
-            dataStore.shift();
-            dataStore.push(pose[0]);
+            if (dataStore.length < framesEvalsToTrack) {
+                dataStore.push(pose[0]);
+            }
+            else {
+                dataStore.shift();
+                dataStore.push(pose[0]);
+            }
+
+            
+            printToConsole(poses[0],0);
+
+            poses.forEach(({ score, keypoints }) => {
+                if (score >= minPoseConfidence) {
+    
+                    func(video, ctx, keypoints, minPartConfidence, 400, 450);
+    
+                }
+            });
+        
         }
 
         
-        printToConsole(poses[0],0);
-
-
-
-
-        poses.forEach(({ score, keypoints }) => {
-            if (score >= minPoseConfidence) {
-
-                func(video, ctx, keypoints, minPartConfidence, 400, 450);
-
-            }
-        });
+        
+        else{
+            func(video, ctx, [], minPartConfidence, 400, 450);
+        }
+        
 
         // End monitoring code for frames per second
 
-        if(doEval){
-            requestAnimationFrame(poseDetectionFrame);
-        }
+            let tempAnimationFrame = requestAnimationFrame(poseDetectionFrame);
+            modifyAnimationFrame(tempAnimationFrame);
     }
 
-        poseDetectionFrame();
+    let tempAnimationFrame = poseDetectionFrame();
+    modifyAnimationFrame(tempAnimationFrame);
 }
 
