@@ -1,8 +1,9 @@
-import {setupCamera, loadVideo, detectPoseInRealTime, calibrate, timer} from './utils.js'
+import {setupCamera, loadVideo, detectPoseInRealTime, calibrate, timer, saveLogToFile} from './utils.js'
 
 import {drawKeypoints, drawSkeleton, plotxy, drawVideo, drawEverything} from './draw.js'
 
-import {videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, movement, movement_kf, calibrationDone, timerClock, modifyDoCalibrate} from './config.js'
+import {videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, movement, 
+    movement_kf, calibrationDone, timerClock, modifyDoCalibrate, modifyDoEval} from './config.js'
 
 
 
@@ -57,15 +58,27 @@ async function bindPage() {
         $('#calibrate').toggleClass('disabled');
         $('#calibrate').click(function(){
             modifyDoCalibrate(true);
-            $('#eval-button-container').hide();
+            // $('#eval-button-container').hide();
+            $('#calibrate').hide();
             $('#part-buttons').show();
             $('#timer').show();
             timer();
+            $('#pause').toggleClass('disabled');
+            $('#save').toggleClass('disabled');
 
 
 
 
 
+        });
+
+        $('#pause').click(function(){
+            modifyDoEval();
+        });
+
+        $('#save').click(function(){
+            saveLogToFile();
+            console.save(dataStore,"log.json");
         });
 
 

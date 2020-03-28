@@ -6,7 +6,7 @@ export const videoHeight = 450;
 
 
 export let selectedPartToTrack = 0;
-export const framesEvalsToTrack = 20;
+export const framesEvalsToTrack = 2000;
 export const parts = ["nose", "leftEye", "rightEye", "leftEar", "rightEar", "leftShoulder", "rightShoulder", "leftElbow", "rightElbow", "leftWrist", "rightWrist", "leftHip", "rightHip", "leftKnee", "rightKnee", "leftAnkle", "rightAnkle"];
 
 export const dataStore = [];
@@ -20,6 +20,11 @@ export function modifyCalibrationDone( value ) { calibrationDone = value; }
 
 export var doCalibrate = false;
 export function modifyDoCalibrate( value ) { doCalibrate = value; }
+
+
+export var doEval = true;
+export function modifyDoEval( value ) { doEval = !doEval; }
+
 
 export var timerClock = {
     s:0,

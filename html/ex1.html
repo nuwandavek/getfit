@@ -38,44 +38,53 @@
 
             </div>   
             <div>
-                    <div class='output-button' id='eval-button-container'>
-                            <button class="ui button disabled" id='start-eval'>Start Eval</button>
-                            <button class="ui button disabled" id='calibrate'>Calibrate</button>
-                    </div>
+                    <div class='output-button'>
+                        <div id='eval-button-container'>
+                                <button class="ui button disabled" id='start-eval'>Start Eval</button>
+                                <button class="ui button disabled" id='calibrate'>Calibrate</button>
+                                <button class="ui button disabled" id='save'>Save</button>
+                                <!-- <button class="ui button disabled" id='pause'>Toggle Pause</button> -->
+                        </div>
+    
+                        <div id='part-buttons' style='display: none; flex-direction: column'>
+                            <div class="ui vertical buttons">
+                                    <button class="ui label" style='display:none;' data-key=0>Nose <i class="check icon" style='display:none; color: #27ae60' data-key=0></i> <i class="x icon" style='display:none; color: #c0392b' data-key=0></i></button>
+                                    <button class="ui label" style='display:none;' data-key=1>l-Eye<i class="check icon" style='display:none; color: #27ae60' data-key=1></i> <i class="x icon" style='display:none; color: #c0392b' data-key=1></i></button>
+                                    <button class="ui label" style='display:none;' data-key=2>r-Eye<i class="check icon" style='display:none; color: #27ae60' data-key=2></i> <i class="x icon" style='display:none; color: #c0392b' data-key=2></i></button>
+                                    <button class="ui label" style='display:none;' data-key=3>l-Ear<i class="check icon" style='display:none; color: #27ae60' data-key=3></i> <i class="x icon" style='display:none; color: #c0392b' data-key=3></i></button>
+                                    <button class="ui label" style='display:none;' data-key=4>r-Ear<i class="check icon" style='display:none; color: #27ae60' data-key=4></i> <i class="x icon" style='display:none; color: #c0392b' data-key=4></i></button>
+                                    <button class="ui label" style='display:none;' data-key=5>l-Shoulder<i class="check icon" style='display:none; color: #27ae60' data-key=5></i> <i class="x icon" style='display:none; color: #c0392b' data-key=5></i></button>
+                                    <button class="ui label" style='display:none;' data-key=6>r-Shoulder<i class="check icon" style='display:none; color: #27ae60' data-key=6></i> <i class="x icon" style='display:none; color: #c0392b' data-key=6></i></button>
+                                    <button class="ui label" style='display:none;' data-key=7>l-Elbow<i class="check icon" style='display:none; color: #27ae60' data-key=7></i> <i class="x icon" style='display:none; color: #c0392b' data-key=7></i></button>
+                                    <button class="ui label" style='display:none;' data-key=8>r-Elbow<i class="check icon" style='display:none; color: #27ae60' data-key=8></i> <i class="x icon" style='display:none; color: #c0392b' data-key=8></i></button>
+                            </div>
+                            <div class="ui vertical buttons">
+                                    
+                                    <button class="ui label" style='display:none;' data-key=9>l-Wrist<i class="check icon" style='display:none; color: #27ae60' data-key=9></i> <i class="x icon" style='display:none; color: #c0392b' data-key=9></i></button>
+                                    <button class="ui label" style='display:none;' data-key=10>r-Wrist<i class="check icon" style='display:none; color: #27ae60' data-key=10></i> <i class="x icon" style='display:none; color: #c0392b' data-key=10></i></button>
+                                    <button class="ui label" style='display:none;' data-key=11>l-Hip<i class="check icon" style='display:none; color: #27ae60' data-key=11></i> <i class="x icon" style='display:none; color: #c0392b' data-key=11></i></button>
+                                    <button class="ui label" style='display:none;' data-key=12>r-Hip<i class="check icon" style='display:none; color: #27ae60' data-key=12></i> <i class="x icon" style='display:none; color: #c0392b' data-key=12></i></button>
+                                    <button class="ui label" style='display:none;' data-key=13>l-Knee<i class="check icon" style='display:none; color: #27ae60' data-key=13></i> <i class="x icon" style='display:none; color: #c0392b' data-key=13></i></button>
+                                    <button class="ui label" style='display:none;' data-key=14>r-Knee<i class="check icon" style='display:none; color: #27ae60' data-key=14></i> <i class="x icon" style='display:none; color: #c0392b' data-key=14></i></button>
+                                    <button class="ui label" style='display:none;' data-key=15>l-Ankle<i class="check icon" style='display:none; color: #27ae60' data-key=15></i> <i class="x icon" style='display:none; color: #c0392b' data-key=15></i></button>
+                                    <button class="ui label" style='display:none;' data-key=16>r-Ankle<i class="check icon" style='display:none; color: #27ae60' data-key=16></i> <i class="x icon" style='display:none; color: #c0392b' data-key=16></i></button>
+                            </div>
+                            </div>
+                            <p id='timer'>
+                                    <span id='hour'>00</span>
+                                    :
+                                    <span id='min'>00</span>
+                                    :
+                                    <span id='sec'>00</span>
+                            </p>
+                            <p id="feedback-calibration"></p>
+                    
 
-                    <div id='part-buttons' style='display: none; flex-direction: row'>
-                        <div class="ui vertical buttons">
-                                <button class="ui label" style='display:none;' data-key=0>Nose <i class="check icon" style='display:none; color: #27ae60' data-key=0></i> <i class="x icon" style='display:none; color: #c0392b' data-key=0></i></button>
-                                <button class="ui label" style='display:none;' data-key=1>l-Eye<i class="check icon" style='display:none; color: #27ae60' data-key=1></i> <i class="x icon" style='display:none; color: #c0392b' data-key=1></i></button>
-                                <button class="ui label" style='display:none;' data-key=2>r-Eye<i class="check icon" style='display:none; color: #27ae60' data-key=2></i> <i class="x icon" style='display:none; color: #c0392b' data-key=2></i></button>
-                                <button class="ui label" style='display:none;' data-key=3>l-Ear<i class="check icon" style='display:none; color: #27ae60' data-key=3></i> <i class="x icon" style='display:none; color: #c0392b' data-key=3></i></button>
-                                <button class="ui label" style='display:none;' data-key=4>r-Ear<i class="check icon" style='display:none; color: #27ae60' data-key=4></i> <i class="x icon" style='display:none; color: #c0392b' data-key=4></i></button>
-                                <button class="ui label" style='display:none;' data-key=5>l-Shoulder<i class="check icon" style='display:none; color: #27ae60' data-key=5></i> <i class="x icon" style='display:none; color: #c0392b' data-key=5></i></button>
-                                <button class="ui label" style='display:none;' data-key=6>r-Shoulder<i class="check icon" style='display:none; color: #27ae60' data-key=6></i> <i class="x icon" style='display:none; color: #c0392b' data-key=6></i></button>
-                                <button class="ui label" style='display:none;' data-key=7>l-Elbow<i class="check icon" style='display:none; color: #27ae60' data-key=7></i> <i class="x icon" style='display:none; color: #c0392b' data-key=7></i></button>
-                                <button class="ui label" style='display:none;' data-key=8>r-Elbow<i class="check icon" style='display:none; color: #27ae60' data-key=8></i> <i class="x icon" style='display:none; color: #c0392b' data-key=8></i></button>
-                        </div>
-                        <div class="ui vertical buttons">
-                                
-                                <button class="ui label" style='display:none;' data-key=9>l-Wrist<i class="check icon" style='display:none; color: #27ae60' data-key=9></i> <i class="x icon" style='display:none; color: #c0392b' data-key=9></i></button>
-                                <button class="ui label" style='display:none;' data-key=10>r-Wrist<i class="check icon" style='display:none; color: #27ae60' data-key=10></i> <i class="x icon" style='display:none; color: #c0392b' data-key=10></i></button>
-                                <button class="ui label" style='display:none;' data-key=11>l-Hip<i class="check icon" style='display:none; color: #27ae60' data-key=11></i> <i class="x icon" style='display:none; color: #c0392b' data-key=11></i></button>
-                                <button class="ui label" style='display:none;' data-key=12>r-Hip<i class="check icon" style='display:none; color: #27ae60' data-key=12></i> <i class="x icon" style='display:none; color: #c0392b' data-key=12></i></button>
-                                <button class="ui label" style='display:none;' data-key=13>l-Knee<i class="check icon" style='display:none; color: #27ae60' data-key=13></i> <i class="x icon" style='display:none; color: #c0392b' data-key=13></i></button>
-                                <button class="ui label" style='display:none;' data-key=14>r-Knee<i class="check icon" style='display:none; color: #27ae60' data-key=14></i> <i class="x icon" style='display:none; color: #c0392b' data-key=14></i></button>
-                                <button class="ui label" style='display:none;' data-key=15>l-Ankle<i class="check icon" style='display:none; color: #27ae60' data-key=15></i> <i class="x icon" style='display:none; color: #c0392b' data-key=15></i></button>
-                                <button class="ui label" style='display:none;' data-key=16>r-Ankle<i class="check icon" style='display:none; color: #27ae60' data-key=16></i> <i class="x icon" style='display:none; color: #c0392b' data-key=16></i></button>
-                        </div>
-                        </div>
-                        <p id='timer'>
-                                <span id='hour'>00</span>
-                                :
-                                <span id='min'>00</span>
-                                :
-                                <span id='sec'>00</span>
-                        </p>
-                        <p id="feedback-calibration"></p>
-                
+
+                    </div>
+                    
+                    
+                    
 
             </div>   
             
