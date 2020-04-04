@@ -1,0 +1,17 @@
+{
+    "exercises": [
+        {
+            "name": "Squats",
+            "id": 1,
+            "img": "./resources/workout.png",
+            "exerciseType": "Bodyweight Exercise",
+            "description": "Classic Squats",
+            "date": "Mar 2020",
+            "subs": 100,
+            "calibrationParts" : [0,1,2,3,4,5],
+            "workoutConfig" : {
+
+            }
+        }
+    ]
+}

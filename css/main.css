@@ -109,14 +109,21 @@ body{
     font-size: 60px;
     margin: 20px;
     color: #fff;
-    display: none;
+    text-align: center;
 }
 
 
-#feedback-calibration{
+#feedback-calibration, #rep-label, #reps{
     color: #fff;
+    text-align: center;
+    margin: 0px;
 }
 
+#reps{
+    font-size: 70px;
+    color : #c0392b;
+
+}
 
 
 #post-calibrate{

@@ -21,6 +21,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flipclock/0.7.8/flipclock.min.js"></script>
 
     <linl rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flipclock/0.7.8/flipclock.min.css"/>
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-app.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-database.js"></script>
+
+  <script src="../js/firebase.js"></script>
+
+
     
 </head>
 
@@ -42,13 +54,13 @@
                         <div id='eval-button-container'>
                                 <button class="ui button disabled" id='start-eval'>Start Eval</button>
                                 <button class="ui button disabled" id='calibrate'>Calibrate</button>
-                                <button class="ui button disabled" id='save'>Save</button>
-                                <button class="ui button disabled" id='pause'>Toggle Pause</button>
+                                <!-- <button class="ui button disabled" id='save'>Save</button> -->
+                                <button class="ui button disabled" id='pause'>Pause/Resume</button>
                         </div>
     
                         <div id="post-calibrate">
-                        <div id='part-buttons' style='flex-direction: column'>
-                            <div class="ui vertical buttons">
+                        <div id='part-buttons' style='flex-direction: row'>
+                            <div class="ui horizontal buttons">
                                     <button class="ui label" style='display:none;' data-key=0>Nose <i class="check icon" style='display:none; color: #27ae60' data-key=0></i> <i class="x icon" style='display:none; color: #c0392b' data-key=0></i></button>
                                     <button class="ui label" style='display:none;' data-key=1>l-Eye<i class="check icon" style='display:none; color: #27ae60' data-key=1></i> <i class="x icon" style='display:none; color: #c0392b' data-key=1></i></button>
                                     <button class="ui label" style='display:none;' data-key=2>r-Eye<i class="check icon" style='display:none; color: #27ae60' data-key=2></i> <i class="x icon" style='display:none; color: #c0392b' data-key=2></i></button>
@@ -59,7 +71,7 @@
                                     <button class="ui label" style='display:none;' data-key=7>l-Elbow<i class="check icon" style='display:none; color: #27ae60' data-key=7></i> <i class="x icon" style='display:none; color: #c0392b' data-key=7></i></button>
                                     <button class="ui label" style='display:none;' data-key=8>r-Elbow<i class="check icon" style='display:none; color: #27ae60' data-key=8></i> <i class="x icon" style='display:none; color: #c0392b' data-key=8></i></button>
                             </div>
-                            <div class="ui vertical buttons">
+                            <div class="ui horizontal buttons">
                                     
                                     <button class="ui label" style='display:none;' data-key=9>l-Wrist<i class="check icon" style='display:none; color: #27ae60' data-key=9></i> <i class="x icon" style='display:none; color: #c0392b' data-key=9></i></button>
                                     <button class="ui label" style='display:none;' data-key=10>r-Wrist<i class="check icon" style='display:none; color: #27ae60' data-key=10></i> <i class="x icon" style='display:none; color: #c0392b' data-key=10></i></button>
@@ -79,6 +91,8 @@
                                     <span id='sec'>00</span>
                             </p>
                             <p id="feedback-calibration"></p>
+                            <p id="reps">0</p>
+                            <p id="rep-label">Reps</p>
                         </div>
                     
 

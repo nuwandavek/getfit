@@ -1,7 +1,7 @@
 import { videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, 
     movement, movement_kf, calibrationDone, doCalibrate, modifyCalibrationDone, timerClock, 
     modifyTimerClock, calibrationMarginA, calibrationMarginB, doEval, animationFrame,
-    modifyAnimationFrame } from './config.js'
+    modifyAnimationFrame, modifyScaler, scaler } from './config.js'
 import { drawKeypoints, drawSkeleton, plotxy, drawVideo } from './draw.js'
 
 
@@ -103,6 +103,47 @@ export function feedbackDuringCalibration(target, currentState){
 }
 
 
+export function setScaler(){
+    if (calibrationDone){
+            let tempNoseY = dataStore[dataStore.length-1].keypoints[0].position.y;
+            let tempKneeY = (dataStore[dataStore.length-1].keypoints[13].position.y + dataStore[dataStore.length-1].keypoints[14].position.y)/2;
+            modifyScaler(tempKneeY - tempNoseY);
+    }
+
+}
+
+export function countReps(){
+    setInterval(() => {
+        if (calibrationDone){
+            let nosetoKnee = [];
+            dataStore.map(d=>{
+                let tempNoseY = d.keypoints[0].position.y;
+                let tempKneeY = (d.keypoints[13].position.y + d.keypoints[14].position.y)/2;
+                nosetoKnee.push((tempKneeY - tempNoseY)/scaler);
+            }) 
+            
+            let crossOver = false;
+            let reps = 0;
+
+            nosetoKnee.map(d=>{
+                if(d<0.6){
+                    crossOver = true;
+                }
+                else if(d>0.6 && crossOver){
+                    crossOver = false;
+                    reps+=1
+                }
+            })
+
+            $("#reps").html(reps);
+        }
+        // console.log(timerClock);
+    }, 200);
+}
+
+
+
+
 
 export function timer(){
     setInterval(() => {
@@ -158,6 +199,8 @@ export function calibrate(keypoints, minPartConfidence, calibrationPosition) {
         
         feedbackDuringCalibration(calibrationPosition, calibrationState);
 
+
+
     }
 }
 
@@ -192,7 +235,7 @@ export async function loadVideo() {
     return video;
 }
 
-export function detectPoseInRealTime(video, net, func) {
+export function detectPoseInRealTime(video, net, func, calibrationParts) {
     var kf = new KalmanFilter();
 
     const minPoseConfidence = 0.1;
@@ -235,12 +278,12 @@ export function detectPoseInRealTime(video, net, func) {
             }
 
             
-            printToConsole(poses[0],0);
+            // printToConsole(poses[0],0);
 
             poses.forEach(({ score, keypoints }) => {
                 if (score >= minPoseConfidence) {
     
-                    func(video, ctx, keypoints, minPartConfidence, 400, 450);
+                    func(video, ctx, keypoints, minPartConfidence, 400, 450, calibrationParts);
     
                 }
             });

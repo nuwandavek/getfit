@@ -1,34 +1,36 @@
-import {setupCamera, loadVideo, detectPoseInRealTime, calibrate, timer, saveLogToFile} from './utils.js'
+import { setupCamera, loadVideo, detectPoseInRealTime, calibrate, timer, saveLogToFile, countReps, setScaler } from './utils.js'
 
-import {drawKeypoints, drawSkeleton, plotxy, drawVideo, drawEverything} from './draw.js'
+import { drawKeypoints, drawSkeleton, plotxy, drawVideo, drawEverything } from './draw.js'
 
-import {videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, movement, 
-    movement_kf, calibrationDone, timerClock, modifyDoCalibrate, modifyDoEval, doEval} from './config.js'
+import {
+    videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, movement,
+    movement_kf, calibrationDone, timerClock, modifyDoCalibrate, modifyDoEval, doEval, modifyCalibrationDone
+} from './config.js'
 
 
 
 
-function ex1(video, ctx, keypoints, minPartConfidence, width, height){
-    if(doEval){
+function exerciseSpecific(video, ctx, keypoints, minPartConfidence, width, height, calibrationParts) {
+    if (doEval) {
         drawVideo(video, ctx);
         drawKeypoints(keypoints, minPartConfidence, ctx);
         drawSkeleton(keypoints, minPartConfidence, ctx);
-    
-        let calibrationPosition = [0,1,2,3,4,5,6];
-    
-    
+
+        let calibrationPosition = calibrationParts;
+
+
         calibrate(keypoints, minPartConfidence, calibrationPosition);
     }
-    else{
+    else {
         drawVideo(video, ctx);
     }
-    
+
 
 }
 
 
 
-async function bindPage() {
+async function bindPage(calibrationParts) {
 
 
     let video;
@@ -47,52 +49,68 @@ async function bindPage() {
 
     $('#start-eval').toggleClass('disabled');
 
-    $('#start-eval').click(async function() {
+    $('#start-eval').click(async function () {
         $('#start-eval').hide();
-        
+
         console.log("Downloading the Model")
 
 
+        // const net = await posenet.load({
+        //     architecture: 'ResNet50',
+        //     outputStride: 32,
+        //     inputResolution: { width: 257, height: 200 },
+        //     quantBytes: 2
+        // });
+        
         const net = await posenet.load({
-            architecture: 'ResNet50',
-            outputStride: 32,
-            inputResolution: { width: 257, height: 200 },
+            architecture: 'MobileNetV1',
+            outputStride: 16,
+            inputResolution: { width: 640, height: 480 },
+            multiplier: 0.75,
             quantBytes: 2
         });
 
         console.log("Model Downloaded.")
 
         $('#calibrate').toggleClass('disabled');
-        $('#calibrate').click(function(){
+        $('#calibrate').click(function () {
+            
             modifyDoCalibrate(true);
             // $('#eval-button-container').hide();
             $('#calibrate').hide();
             // $('#part-buttons').show();
             // $('#timer').show();
             $('#post-calibrate').show();
-            timer();
-            $('#pause').toggleClass('disabled');
-            $('#save').toggleClass('disabled');
+            setTimeout(()=>{
+                setScaler();
+                dataStore.length = 0;
+                timer();
+                countReps();
+                $('#pause').toggleClass('disabled');
+                $('#save').toggleClass('disabled');
 
+            },3000)
+            
 
 
 
 
         });
 
-        $('#pause').click(function(){
+        $('#pause').click(function () {
             modifyDoEval();
+            modifyCalibrationDone(false);
         });
 
-        $('#save').click(function(){
+        $('#save').click(function () {
             saveLogToFile();
-            console.save(dataStore,"log.json");
+            console.save(dataStore, "log.json");
         });
 
 
 
         clearInterval(drawInterval);
-        detectPoseInRealTime(video, net, ex1);
+        detectPoseInRealTime(video, net, exerciseSpecific, calibrationParts);
 
         $('.debug-part-select').click(function () {
             selectedPartToTrack = $(this).attr('data-key');
@@ -104,9 +122,24 @@ async function bindPage() {
 }
 
 $('#start-video').click(function () {
-    $('#video-button-container').hide();
-    $('#output').show();
-    bindPage();
+    const exerciseID = parseInt(new URLSearchParams(window.location.search).get('exID'));
+
+    let exercise = firebase.database().ref('exercises').once('value', (snapshot) => {
+        snapshot.val().map(d => {
+            if (d.id === exerciseID) {
+                console.log(d);
+
+
+
+
+                $('#video-button-container').hide();
+                $('#output').show();
+                bindPage(d.calibrationParts);
+            }
+        })
+    });
+
+
 })
 
 
