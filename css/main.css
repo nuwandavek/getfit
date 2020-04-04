@@ -99,6 +99,7 @@ body{
     align-items: center;
     border: 2px solid #fff;
     border-radius: 5px;
+    flex-direction: column;
 }
 
 #part-buttons{
@@ -114,4 +115,10 @@ body{
 
 #feedback-calibration{
     color: #fff;
+}
+
+
+
+#post-calibrate{
+    display: none;
 }

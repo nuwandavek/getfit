@@ -1,6 +1,7 @@
 import { videoHeight, videoWidth, selectedPartToTrack, parts, framesEvalsToTrack, dataStore, 
     movement, movement_kf, calibrationDone, doCalibrate, modifyCalibrationDone, timerClock, 
-    modifyTimerClock, calibrationMarginA, calibrationMarginB } from './config.js'
+    modifyTimerClock, calibrationMarginA, calibrationMarginB, doEval, animationFrame,
+    modifyAnimationFrame } from './config.js'
 import { drawKeypoints, drawSkeleton, plotxy, drawVideo } from './draw.js'
 
 
@@ -10,9 +11,46 @@ export function pad(n, width, z) {
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
 
+export function printToConsole(pose,part){
+    if(calibrationDone){
+        console.log(parts[part],pose.keypoints[part].position.x,pose.keypoints[part].position.y);
+    }
+}
+
+
+export function saveLogToFile(){
+    (function(console){
+
+        console.save = function(data, filename){
+        
+            if(!data) {
+                console.error('Console.save: No data')
+                return;
+            }
+        
+            if(!filename) filename = 'console.json'
+        
+            if(typeof data === "object"){
+                data = JSON.stringify(data, undefined, 4)
+            }
+        
+            var blob = new Blob([data], {type: 'text/json'}),
+                e    = document.createEvent('MouseEvents'),
+                a    = document.createElement('a')
+        
+            a.download = filename
+            a.href = window.URL.createObjectURL(blob)
+            a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':')
+            e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+            a.dispatchEvent(e)
+         }
+        })(console)
+}
+
+
 
 export function feedbackDuringCalibration(target, currentState){
-    console.log('Feedback blah blah');
+    // console.log('Feedback blah blah');
     const minY = Math.min(...currentState.map((d)=>(d.y)));
     const maxY = Math.max(...currentState.map((d)=>(d.y)));
     const minX = Math.min(...currentState.map((d)=>(d.x)));
@@ -82,7 +120,7 @@ export function timer(){
             }
             modifyTimerClock(timerClock.h,timerClock.m,timerClock.s);
         }
-        console.log(timerClock);
+        // console.log(timerClock);
     }, 1000);
 }
 
@@ -167,47 +205,62 @@ export function detectPoseInRealTime(video, net, func) {
     canvas.width = videoWidth;
     canvas.height = videoHeight;
 
+
     async function poseDetectionFrame() {
-        let poses = [];
-        const pose = await net.estimatePoses(video, {
-            flipHorizontal: true,
-            decodingMethod: 'single-person'
-        });
-        poses = poses.concat(pose);
+        if(doEval){
+            let poses = [];
+            const pose = await net.estimatePoses(video, {
+                flipHorizontal: true,
+                decodingMethod: 'single-person'
+            });
+            poses = poses.concat(pose);
 
-        if (movement.length < 20) {
-            movement.push(pose[0].keypoints[selectedPartToTrack].position.y);
-            movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
-        }
-        else {
-            movement.shift();
-            movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
-        }
+            poses[0]['timestamp'] = new Date().getTime();
 
-        if (dataStore.length < framesEvalsToTrack) {
-            dataStore.push(pose[0]);
-        }
-        else {
-            dataStore.shift();
-            dataStore.push(pose[0]);
-        }
-
-
-
-
-        poses.forEach(({ score, keypoints }) => {
-            if (score >= minPoseConfidence) {
-
-                func(video, ctx, keypoints, minPartConfidence, 400, 450);
-
+            if (movement.length < framesEvalsToTrack) {
+                movement.push(pose[0].keypoints[selectedPartToTrack].position.y);
+                movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
             }
-        });
+            else {
+                movement.shift();
+                movement_kf.push(kf.filter(pose[0].keypoints[selectedPartToTrack].position.y));
+            }
+
+            if (dataStore.length < framesEvalsToTrack) {
+                dataStore.push(pose[0]);
+            }
+            else {
+                dataStore.shift();
+                dataStore.push(pose[0]);
+            }
+
+            
+            printToConsole(poses[0],0);
+
+            poses.forEach(({ score, keypoints }) => {
+                if (score >= minPoseConfidence) {
+    
+                    func(video, ctx, keypoints, minPartConfidence, 400, 450);
+    
+                }
+            });
+        
+        }
+
+        
+        
+        else{
+            func(video, ctx, [], minPartConfidence, 400, 450);
+        }
+        
 
         // End monitoring code for frames per second
 
-        requestAnimationFrame(poseDetectionFrame);
+            let tempAnimationFrame = requestAnimationFrame(poseDetectionFrame);
+            modifyAnimationFrame(tempAnimationFrame);
     }
 
-    poseDetectionFrame();
+    let tempAnimationFrame = poseDetectionFrame();
+    modifyAnimationFrame(tempAnimationFrame);
 }
 
